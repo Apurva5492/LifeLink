@@ -21,6 +21,11 @@ header{
     display: flex;
     align-items: center;
 }
+.logo-icon {
+    width: 55px;
+    height: 55px;
+    background: transparent;
+}
 .logo span{
     margin: 0;
 }
