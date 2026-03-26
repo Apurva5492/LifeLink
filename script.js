@@ -37,12 +37,20 @@ document.querySelectorAll('.step-card, .safety-card, .hero-stats').forEach(card 
 document.querySelectorAll('.hero-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         console.log('Button clicked:', this.textContent.trim());
-        // You can add Google Analytics or other tracking here
+
     });
 });
 
-// Mobile menu toggle (if you add a hamburger menu later)
+
 function toggleMenu() {
     const nav = document.querySelector('nav');
     nav.classList.toggle('mobile-menu-open');
 }
+
+document.querySelector("#registerForm")?.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const fd = new FormData(this);
+  console.log("Registering donor:", Object.fromEntries(fd.entries()));
+  alert("Thank you! Your registration is submitted.");
+  this.reset();
+});
