@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Request - LifeLink</title>
+  <link rel="stylesheet" href="register.css" />
+  <script src="https://kit.fontawesome.com/32ec5d2307.js" crossorigin="anonymous" defer></script>
+  <style>
+    .emergency-list { display: grid; gap: 1rem; margin-top: 2rem; }
+    .emergency-card { background: #fff; border-left: 4px solid #c62828; border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .emergency-card h4 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+    .emergency-card .meta { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; color: #555; }
+    .emergency-card .time { font-size: 0.78rem; color: #aaa; margin-top: 0.4rem; }
+    .section-title { color: #c62828; margin-bottom: 0.5rem; }
+    #statusMsg { text-align: center; padding: 0.8rem; border-radius: 8px; display: none; margin-top: 1rem; }
+    #statusMsg.success { background: #e8f5e9; color: #2e7d32; display: block; }
+    #statusMsg.error   { background: #ffebee; color: #c62828; display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="lifelink-logo.png" alt="LifeLink logo" class="logo-image" />
+        <span class="logo-text"><span class="life">Life</span><span class="link">Link</span></span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="find.html">Find Donor</a>
+        <a href="register.html">Register</a>
+        <a href="emergency.html" class="active">Emergency</a>
+      </nav>
+      <a href="register.html" class="btn-primary">Register Now</a>
+    </div>
+  </header>
+
+  <section class="hero-banner" style="background: linear-gradient(135deg,#c62828,#e53935);">
+    <div class="hero-inner">
+      <span class="mini-pill"><i class="fa-solid fa-triangle-exclamation"></i> Urgent Help</span>
+      <h1>Emergency Blood &amp; Organ Request</h1>
+      <p>Submit an urgent request and let registered donors in your area respond immediately.</p>
+    </div>
+  </section>
+
+  <main class="page-container">
+
+    <!-- SUBMIT FORM -->
+    <article class="register-card">
+      <header class="card-header">
+        <div class="card-icon" style="background:#c62828;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div>
+          <h2>Submit Emergency Request</h2>
+          <p>Fields marked <strong>*</strong> are required</p>
+        </div>
+      </header>
+
+      <form id="emergencyForm" class="register-form">
+        <label>
+          Patient Name *
+          <input type="text" name="patient_name" placeholder="Enter patient name" required />
+        </label>
+
+        <div class="grid-2">
+          <label>
+            Blood Group *
+            <select name="blood_group" required>
+              <option value="">Select blood group</option>
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+            </select>
+          </label>
+          <label>
+            Organ (if needed)
+            <select name="organ">
+              <option value="">Not required</option>
+              <option>Kidney</option><option>Liver</option><option>Heart</option>
+              <option>Pancreas</option><option>Lung</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          City / Location *
+          <input type="text" name="city" placeholder="City where blood/organ is needed" required />
+        </label>
+
+        <label>
+          Contact Number *
+          <input type="tel" name="contact" placeholder="+91 98765 43210" required />
+        </label>
+
+        <label>
+          Hospital Name
+          <input type="text" name="hospital" placeholder="Hospital or clinic name (optional)" />
+        </label>
+
+        <div id="statusMsg"></div>
+
+        <button class="submit-btn" type="submit">
+          <i class="fa-solid fa-paper-plane"></i> Submit Emergency Request
+        </button>
+      </form>
+    </article>
+
+    <!-- ACTIVE REQUESTS -->
+    <article class="register-card" style="margin-top:2rem;">
+      <header class="card-header">
+        <div class="card-icon" style="background:#e53935;"><i class="fa-solid fa-list-ul"></i></div>
+        <div>
+          <h2>Active Emergency Requests</h2>
+          <p>Live requests from patients needing urgent help</p>
+        </div>
+      </header>
+      <div id="emergencyList"><p style="color:#888;text-align:center;">Loading requests...</p></div>
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 LifeLink. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3000/api/emergency';
+
+    async function loadRequests() {
+      const list = document.getElementById('emergencyList');
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        if (!data.length) {
+          list.innerHTML = '<p style="color:#888;text-align:center;">No active emergency requests.</p>';
+          return;
+        }
+        list.innerHTML = `<div class="emergency-list">${data.map(r => `
+          <div class="emergency-card">
+            <h4>${r.patient_name}</h4>
+            <div class="meta">
+              <span>🩸 <strong>${r.blood_group}</strong></span>
+              <span>📍 ${r.city}</span>
+              ${r.organ ? `<span>🫀 ${r.organ}</span>` : ''}
+              ${r.hospital ? `<span>🏥 ${r.hospital}</span>` : ''}
+            </div>
+            <div class="time">Posted: ${new Date(r.created_at).toLocaleString()}</div>
+          </div>`).join('')}
+        </div>`;
+      } catch {
+        list.innerHTML = '<p style="color:#c62828;text-align:center;">Could not load requests.</p>';
+      }
+    }
+
+    document.getElementById('emergencyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.submit-btn');
+      const msg = document.getElementById('statusMsg');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      msg.className = '';
+      msg.style.display = 'none';
+
+      const data = Object.fromEntries(new FormData(e.target).entries());
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          msg.textContent = '✅ Emergency request submitted. Donors will be notified.';
+          msg.className = 'success';
+          e.target.reset();
+          loadRequests();
+        } else {
+          msg.textContent = json.error || 'Submission failed.';
+          msg.className = 'error';
+        }
+      } catch {
+        msg.textContent = 'Could not connect to server.';
+        msg.className = 'error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Emergency Request';
+      }
+    });
+
+    loadRequests();
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeLink | Login / Sign Up</title>
+  <link rel="stylesheet" href="register.css" />
+  <script src="https://kit.fontawesome.com/32ec5d2307.js" crossorigin="anonymous" defer></script>
+  <style>
+    .tab-btns { display: flex; gap: 0; margin-bottom: 1.5rem; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
+    .tab-btn  { flex: 1; padding: 0.75rem; border: none; background: #f5f5f5; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: background 0.2s; }
+    .tab-btn.active { background: #c62828; color: #fff; }
+    #statusMsg { text-align: center; padding: 0.8rem; border-radius: 8px; display: none; margin-top: 1rem; }
+    #statusMsg.success { background: #e8f5e9; color: #2e7d32; display: block; }
+    #statusMsg.error   { background: #ffebee; color: #c62828; display: block; }
+    .user-info { background: #fff3e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: none; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="lifelink-logo.png" alt="LifeLink logo" class="logo-image" />
+        <span class="logo-text"><span class="life">Life</span><span class="link">Link</span></span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="find.html">Find Donor</a>
+        <a href="register.html">Register</a>
+        <a href="emergency.html">Emergency</a>
+        <a href="login.html" class="active">Login</a>
+      </nav>
+      <a href="register.html" class="btn-primary">Register Now</a>
+    </div>
+  </header>
+
+  <section class="hero-banner">
+    <div class="hero-inner">
+      <span class="mini-pill"><i class="fa-solid fa-lock"></i> Secure Access</span>
+      <h1>Login to LifeLink</h1>
+      <p>Access your account to manage your donor profile and emergency requests.</p>
+    </div>
+  </section>
+
+  <main class="page-container">
+    <article class="register-card" style="max-width:480px;margin:0 auto;">
+
+      <div id="userInfo" class="user-info"></div>
+
+      <div class="tab-btns">
+        <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="register-form">
+        <label>
+          Email Address *
+          <input type="email" name="email" placeholder="your.email@example.com" required />
+        </label>
+        <label>
+          Password *
+          <input type="password" name="password" placeholder="Enter your password" required />
+        </label>
+        <div id="statusMsg"></div>
+        <button class="submit-btn" type="submit">Login</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="signupForm" class="register-form" style="display:none;">
+        <label>
+          Full Name *
+          <input type="text" name="name" placeholder="Enter your full name" required />
+        </label>
+        <label>
+          Email Address *
+          <input type="email" name="email" placeholder="your.email@example.com" required />
+        </label>
+        <label>
+          Password *
+          <input type="password" name="password" placeholder="Create a password" required />
+        </label>
+        <div id="statusMsg2"></div>
+        <button class="submit-btn" type="submit">Create Account</button>
+      </form>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 LifeLink. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const BASE = 'http://localhost:3000/api/auth';
+
+    function switchTab(tab) {
+      document.getElementById('loginForm').style.display  = tab === 'login'  ? '' : 'none';
+      document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
+      document.getElementById('loginTab').classList.toggle('active',  tab === 'login');
+      document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+    }
+
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = type;
+    }
+
+    // Check existing session
+    const saved = localStorage.getItem('lifelink_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      const info = document.getElementById('userInfo');
+      info.style.display = 'block';
+      info.innerHTML = `✅ Logged in as <strong>${u.name}</strong> (${u.email}) &nbsp;
+        <a href="#" onclick="logout()" style="color:#c62828;">Logout</a>`;
+    }
+
+    function logout() {
+      localStorage.removeItem('lifelink_token');
+      localStorage.removeItem('lifelink_user');
+      location.reload();
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.submit-btn');
+      btn.disabled = true; btn.textContent = 'Logging in...';
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      try {
+        const res = await fetch(`${BASE}/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          localStorage.setItem('lifelink_token', json.token);
+          localStorage.setItem('lifelink_user', JSON.stringify(json.user));
+          showMsg('statusMsg', `✅ Welcome back, ${json.user.name}!`, 'success');
+          setTimeout(() => location.href = 'index.html', 1200);
+        } else {
+          showMsg('statusMsg', json.error || 'Login failed.', 'error');
+        }
+      } catch {
+        showMsg('statusMsg', 'Could not connect to server.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Login';
+      }
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.submit-btn');
+      btn.disabled = true; btn.textContent = 'Creating account...';
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      try {
+        const res = await fetch(`${BASE}/register`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          localStorage.setItem('lifelink_token', json.token);
+          localStorage.setItem('lifelink_user', JSON.stringify(json.user));
+          showMsg('statusMsg2', '✅ Account created! Redirecting...', 'success');
+          setTimeout(() => location.href = 'index.html', 1200);
+        } else {
+          showMsg('statusMsg2', json.error || 'Sign up failed.', 'error');
+        }
+      } catch {
+        showMsg('statusMsg2', 'Could not connect to server.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>

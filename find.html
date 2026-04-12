@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Donor - LifeLink</title>
+    <link rel="stylesheet" href="find.css">
+    <script src="https://kit.fontawesome.com/32ec5d2307.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <span class="life">Life</span><span class="link">Link</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="find.html">Find Donor</a>
+        <a href="register.html">Register</a>
+    </nav>
+
+    <div class="nav-btns">
+        <a href="register.html" class="btn">Register Now</a>
+    </div>
+</header>
+
+<!-- FIND DONOR SECTION -->
+<section class="find">
+
+    <div class="container">
+
+        <div class="top">
+            <div class="badge">
+                <i class="fa-solid fa-magnifying-glass"></i> Find a Match
+            </div>
+
+            <h1>Find a Blood or Organ Donor</h1>
+
+            <p>
+                Search our database of registered donors by blood group,
+                organ type, or location.
+            </p>
+        </div>
+
+        <!-- SEARCH BOX -->
+        <div class="card">
+
+            <div class="card-header">
+                <div class="icon">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+
+                <div>
+                    <h3>Search Criteria</h3>
+                    <p>Select at least one filter to search</p>
+                </div>
+            </div>
+
+            <div class="fields">
+
+                <div class="field">
+                    <label>Blood Group</label>
+                    <select id="searchBloodGroup">
+                        <option value="">Any blood group</option>
+                        <option>A+</option><option>A-</option>
+                        <option>B+</option><option>B-</option>
+                        <option>AB+</option><option>AB-</option>
+                        <option>O+</option><option>O-</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Organ Type</label>
+                    <select id="searchOrgan">
+                        <option value="">Any organ</option>
+                        <option>Kidney</option>
+                        <option>Liver</option>
+                        <option>Heart</option>
+                        <option>Pancreas</option>
+                        <option>Lung</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>City / Location</label>
+                    <input type="text" id="searchCity" placeholder="Enter city name" style="padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;width:100%;" />
+                </div>
+
+            </div>
+
+            <button class="search-btn" id="searchBtn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Search Donors
+            </button>
+
+        </div>
+
+        <!-- RESULTS -->
+        <div id="resultsSection" style="margin-top:2rem;"></div>
+
+    </div>
+
+</section>
+
+<script>
+document.getElementById('searchBtn').addEventListener('click', async () => {
+  const bloodGroup = document.getElementById('searchBloodGroup').value;
+  const organ = document.getElementById('searchOrgan').value;
+  const city = document.getElementById('searchCity').value.trim();
+  const resultsSection = document.getElementById('resultsSection');
+
+  const params = new URLSearchParams();
+  if (bloodGroup) params.append('bloodGroup', bloodGroup);
+  if (organ && organ !== 'Any organ') params.append('organ', organ);
+  if (city) params.append('city', city);
+
+  resultsSection.innerHTML = '<p style="text-align:center;color:#888;">Searching...</p>';
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/donors?${params.toString()}`);
+    const donors = await res.json();
+
+    if (!res.ok) throw new Error(donors.error || 'Server error');
+
+    if (donors.length === 0) {
+      resultsSection.innerHTML = '<p style="text-align:center;color:#888;">No donors found matching your criteria.</p>';
+      return;
+    }
+
+    resultsSection.innerHTML = `
+      <h3 style="margin-bottom:1rem;color:#c62828;">${donors.length} Donor(s) Found</h3>
+      <div style="display:grid;gap:1rem;">
+        ${donors.map(d => `
+          <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <strong style="font-size:1.1rem;">${d.fullname}</strong>
+            <div style="margin-top:0.5rem;display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#555;">
+              <span>🩸 <strong>${d.blood_group}</strong></span>
+              <span>📍 ${d.city}</span>
+              ${d.organ ? `<span>🫀 ${d.organ}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  } catch (err) {
+    console.error('Search failed:', err);
+    resultsSection.innerHTML = '<p style="text-align:center;color:#c62828;">Could not connect to server. Please try again later.</p>';
+  }
+});
+</script>
+
+</body>
+</html>

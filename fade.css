@@ -1,0 +1,16 @@
+/* Initial state for elements to fade in */
+.step-card,
+.safety-card,
+.hero-stats {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Fade-in animation when class is added */
+.step-card.fade-in,
+.safety-card.fade-in,
+.hero-stats.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
