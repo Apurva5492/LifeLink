@@ -1,83 +1,91 @@
-# LifeLink — Full-Stack Setup Guide
+🩸 LifeLink — Emergency Blood & Organ Donation Platform
 
-## Prerequisites
-- [Node.js](https://nodejs.org/) v18+
-- [PostgreSQL](https://www.postgresql.org/) v14+
+LifeLink is a full-stack web application designed to connect blood and organ donors with people in urgent need. It enables quick donor registration and efficient searching based on blood group, organ, and location — helping save lives during emergencies.
 
----
+🚀 Features
+🔍 Search donors by blood group, organ, and city
+📝 Register as a blood/organ donor
+⚡ Fast API-based backend with Express.js
+🗄️ Secure data storage using PostgreSQL
+🌐 Simple and responsive frontend interface
+❤️ Designed for real-world emergency use cases
+🛠️ Tech Stack
 
-## 1. Database Setup
+Frontend
 
-```bash
-# Connect to PostgreSQL and create the database
+HTML, CSS, JavaScript
+
+Backend
+
+Node.js
+Express.js
+
+Database
+
+PostgreSQL
+📁 Project Structure
+LifeLink-main/
+├── index.html          # Homepage
+├── register.html       # Donor registration
+├── find.html           # Donor search
+├── *.css               # Styles
+├── script.js           # Frontend logic
+├── schema.sql          # Database schema
+└── backend/
+    ├── server.js       # Express server
+    ├── db.js           # Database connection
+    ├── .env.example    # Environment variables template
+    ├── package.json
+    └── routes/
+        └── donors.js   # API routes
+⚙️ Setup Instructions
+1️⃣ Prerequisites
+Node.js (v18+)
+PostgreSQL (v14+)
+2️⃣ Database Setup
 psql -U postgres
 CREATE DATABASE lifelink;
 \q
 
-# Run the schema to create tables
 psql -U postgres -d lifelink -f schema.sql
-```
-
----
-
-## 2. Backend Setup
-
-```bash
+3️⃣ Backend Setup
 cd backend
 
-# Copy env file and fill in your values
 copy .env.example .env
-```
 
-Edit `backend/.env`:
-```
+Edit .env file:
+
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=lifelink
 DB_USER=postgres
 DB_PASSWORD=your_actual_password
 PORT=3000
-```
 
-```bash
-# Install dependencies
+Install dependencies:
+
 npm install
 
-# Start the server
+Start server:
+
 npm start
 
-# Or for development with auto-reload
+For development:
+
 npm run dev
-```
+🌐 Running the Application
 
-The backend will run at **http://localhost:3000**
+After starting the backend:
 
----
+👉 Open in browser:
 
-## 3. Frontend
-
-The Express server now serves the frontend files too.
-
-After starting the backend, open:
-
-```bash
 http://localhost:3000/
-```
+📡 API Endpoints
+➤ Register Donor
+POST /api/donors
 
-You can still open the HTML files directly or use a local static server if you want, but the simplest setup is to use the backend URL above.
+Request Body:
 
----
-
-## API Reference
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/donors` | Register a new donor |
-| `GET` | `/api/donors` | Search donors |
-| `GET` | `/health` | Health check |
-
-### POST `/api/donors` — Request Body
-```json
 {
   "fullname": "Jane Doe",
   "bloodGroup": "O+",
@@ -86,31 +94,39 @@ You can still open the HTML files directly or use a local static server if you w
   "phone": "+91 98765 43210",
   "email": "jane@example.com"
 }
-```
+➤ Search Donors
+GET /api/donors
 
-### GET `/api/donors` — Query Params
-```
+Query Parameters:
+
 /api/donors?bloodGroup=O+&city=Delhi&organ=Kidney
-```
-All params are optional. Returns array of matching donors.
 
----
+(All parameters are optional)
 
-## Project Structure
+➤ Health Check
+GET /health
+💡 Use Case
 
-```
-LifeLink-main/
-├── index.html          # Homepage (unchanged)
-├── register.html       # Donor registration (API-connected)
-├── find.html           # Donor search (API-connected)
-├── *.css               # Stylesheets (unchanged)
-├── script.js           # Shared JS (unchanged)
-├── schema.sql          # PostgreSQL schema
-└── backend/
-    ├── server.js       # Express entry point
-    ├── db.js           # PostgreSQL connection
-    ├── .env.example    # Environment variable template
-    ├── package.json
-    └── routes/
-        └── donors.js   # Donor API routes
-```
+LifeLink can be used in:
+
+🚑 Emergency medical situations
+🏥 Hospitals and blood banks
+🧑‍⚕️ NGOs and donation drives
+📱 Real-time donor search systems
+🔮 Future Enhancements
+📍 Location-based nearest donor detection
+📞 One-click emergency contact system
+🔐 Authentication & user profiles
+📱 Mobile app integration
+🚑 Ambulance booking system (planned)
+🤝 Contributing
+
+Contributions are welcome!
+
+Fork the repository
+Create a new branch
+Make your changes
+Submit a pull request
+
+📜 License
+This project is open-source and available under the MIT License.
